@@ -132,7 +132,13 @@ namespace HashTablesLib
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return (from pair in _table where pair != null && !pair.IsDeleted() select new KeyValuePair<TKey, TValue>(pair.Key, pair.Value)).GetEnumerator();
+            for (int i = 0; i < _capacity; i++)
+            {
+                if (_table[i] != null && !_table[i].IsDeleted())
+                {
+                    yield return new KeyValuePair<TKey, TValue>(_table[i].Key, _table[i].Value);
+                }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

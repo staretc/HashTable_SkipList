@@ -30,7 +30,7 @@ namespace ExperimentsConsoleApp
             var watch = new Stopwatch();
             #region Starting up
             hashTable.Add("word", 0);
-            hashTable.ContainsKey("word");
+            foreach(var pair in hashTable) { }
             hashTable.Remove("word");
             #endregion
 
