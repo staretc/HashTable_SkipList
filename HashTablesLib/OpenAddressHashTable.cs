@@ -13,7 +13,7 @@ namespace HashTablesLib
         public int Count { get; private set; }
         public bool IsReadOnly {  get; private set; }
 
-        private const double FillFactor = 0.85;
+        private const double FillFactor = 0.7;
         private static readonly GetPrimeNumber _primeNumber = new GetPrimeNumber();
 
         public OpenAddressHashTable() : this(_primeNumber.GetMin()) { }
@@ -27,14 +27,15 @@ namespace HashTablesLib
         }
         public void Add(TKey key, TValue value)
         {
-            var hash = _hashMaker1.ReturnHash(key);
+            var hash1 = _hashMaker1.ReturnHash(key);
 
-            if (!TryToPut(hash, key, value)) // ячейка занята
+            if (!TryToPut(hash1, key, value)) // ячейка занята
             {
+                var hash2 = _hashMaker2.ReturnHash(key);
                 int iterationNumber = 1;
                 while (true) 
                 {
-                    var place = (hash + iterationNumber * (1 + _hashMaker2.ReturnHash(key))) % _capacity;
+                    var place = (hash1 + iterationNumber * (1 + hash2)) % _capacity;
                     if (TryToPut(place, key, value))
                         break;
                     iterationNumber++;
@@ -132,6 +133,7 @@ namespace HashTablesLib
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
+            //return _table.Where(x => x != null && !x.IsDeleted()).Select(x => new KeyValuePair<TKey, TValue>(x.Key, x.Value)).ToList().GetEnumerator();
             for (int i = 0; i < _capacity; i++)
             {
                 if (_table[i] != null && !_table[i].IsDeleted())

@@ -30,7 +30,7 @@ namespace ExperimentsConsoleApp
             var watch = new Stopwatch();
             #region Starting up
             hashTable.Add("word", 0);
-            foreach(var pair in hashTable) { }
+            foreach (var pair in hashTable) { }
             hashTable.Remove("word");
             #endregion
 
@@ -54,11 +54,8 @@ namespace ExperimentsConsoleApp
 
             Console.WriteLine("\n============\n");
 
-            Console.WriteLine("HashTable Taking Most Frequent Words");
-
             var mostFrequentWords = new List<string>();
             var frequency = 27;
-            watch.Restart();
             // Получение выборки слов которые встречаются чаще 27 раз
             foreach (var pair in hashTable)
             {
@@ -67,10 +64,6 @@ namespace ExperimentsConsoleApp
                     mostFrequentWords.Add(pair.Key);
                 }
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
-
-            Console.WriteLine("\n============\n");
 
             Console.WriteLine("HashTable Deleting Most Frequent Words");
 
@@ -112,11 +105,8 @@ namespace ExperimentsConsoleApp
 
             Console.WriteLine("\n============\n");
 
-            Console.WriteLine("Dictionary Taking Most Frequent Words");
-
             var mostFrequentWords = new List<string>();
             var frequency = 27;
-            watch.Restart();
             // Получение выборки слов которые встречаются чаще 27 раз
             foreach (var pair in dictionary)
             {
@@ -125,10 +115,6 @@ namespace ExperimentsConsoleApp
                     mostFrequentWords.Add(pair.Key);
                 }
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
-
-            Console.WriteLine("\n============\n");
 
             Console.WriteLine("Dictionary Deleting Most Frequent Words");
 

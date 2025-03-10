@@ -5,9 +5,9 @@ namespace HashTablesLib
 {
     public class Pair<TKey, TValue> : IEquatable<Pair<TKey, TValue>>
     {
+        private bool _deleted;
         public TKey Key { get; set; }
         public TValue Value { get; set; }
-        bool _deleted;
 
         public Pair(TKey key, TValue value)
         {
