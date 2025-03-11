@@ -22,26 +22,22 @@ namespace SkipListUnitTest
             Assert.AreEqual(n, lib.Count);
         }
         [TestMethod]
-        public void Add_ItemsExistAfterAdding()
+        public void Add_StaticItems_ExistAfterAdding()
         {
             var lib = new SkipList<int, int>();
             var nums = new List<int>(new[] { 44, 22, 1 , 56, 3, 90, 31, 15, 26 });
-            int n = nums.Count;
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < nums.Count; i++)
             {
                 lib.Add(nums[i], i);
             }
-            nums.Sort();
-            int j = 0;
-            foreach(var pair in lib)
+            foreach(var num in nums)
             {
-                Assert.AreEqual(nums[j], pair.Key);
-                j++;
+                Assert.IsTrue(lib.Contains(num));
             }
-            Assert.AreEqual(n, lib.Count);
+            Assert.AreEqual(nums.Count, lib.Count);
         }
         [TestMethod]
-        public void Add_RandomItemsExistAfterAdding()
+        public void Add_RandomItems_ExistAfterAdding()
         {
             var lib = new SkipList<int, int>();
             var nums = new HashSet<int>();
@@ -53,7 +49,7 @@ namespace SkipListUnitTest
             }
             foreach(var item in nums)
             {
-                lib.Add(item,1);
+                lib.Add(item, 1);
             }
 
             var a = nums.ToList();
@@ -65,6 +61,21 @@ namespace SkipListUnitTest
                 j++;
             }
             Assert.AreEqual(n, lib.Count);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Add_DuplicateKey_ThrowsException()
+        {
+            var lib = new SkipList<int, int>();
+            var nums = new List<int>(new[] { 44, 22, 1, 56, 3, 90, 31, 15, 26 });
+            for (int i = 0; i < nums.Count; i++)
+            {
+                lib.Add(nums[i], i);
+            }
+            for (int i = 0; i < nums.Count; i++)
+            {
+                lib.Add(nums[i], i);
+            }
         }
     }
 }

@@ -31,7 +31,9 @@ namespace ExperimentsConsoleApp
         static void Work_HashTable(string[] words)
         {
             var hashTable = new OpenAddressHashTable<string, int>();
-            var watch = new Stopwatch();
+            var insertWatch = new Stopwatch();
+            var deleteWatch = new Stopwatch();
+            var totalWatch = new Stopwatch();
             #region Starting up
             hashTable.Add("word", 0);
             foreach (var pair in hashTable) { }
@@ -40,9 +42,8 @@ namespace ExperimentsConsoleApp
 
             #region HashTable
 
-            Console.WriteLine("HashTable Insert");
-
-            watch.Restart();
+            totalWatch.Restart();
+            insertWatch.Restart();
             // Вставка элементов в HashTable
             foreach (var word in words)
             {
@@ -53,10 +54,7 @@ namespace ExperimentsConsoleApp
                 }
                 hashTable[word] = 1;
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
-
-            Console.WriteLine("\n============\n");
+            insertWatch.Stop();
 
             var mostFrequentWords = new List<string>();
             var frequency = 27;
@@ -69,17 +67,19 @@ namespace ExperimentsConsoleApp
                 }
             }
 
-            Console.WriteLine("HashTable Deleting Most Frequent Words");
-
-            watch.Restart();
+            deleteWatch.Restart();
             // Удаление слов которые встречаются чаще 27 раз
             foreach (var word in mostFrequentWords)
             {
                 hashTable.Remove(word);
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
+            deleteWatch.Stop();
 
+            Console.WriteLine("\n============\n");
+            Console.WriteLine("Hash Table");
+            Console.WriteLine($"Insert time: {insertWatch.ElapsedTicks}");
+            Console.WriteLine($"Delete time: {deleteWatch.ElapsedTicks}");
+            Console.WriteLine($"Total  time: {totalWatch.ElapsedTicks}");
             Console.WriteLine("\n============\n");
 
             #endregion
@@ -87,13 +87,14 @@ namespace ExperimentsConsoleApp
         static void Work_Dictionary(string[] words)
         {
             var dictionary = new System.Collections.Generic.Dictionary<string, int>();
-            var watch = new Stopwatch();
+            var insertWatch = new Stopwatch();
+            var deleteWatch = new Stopwatch();
+            var totalWatch = new Stopwatch();
 
             #region Dictionary
 
-            Console.WriteLine("Dictionary Insert");
-
-            watch.Restart();
+            totalWatch.Restart();
+            insertWatch.Restart();
             // Вставка элементов в Dictionary
             foreach (var word in words)
             {
@@ -104,10 +105,7 @@ namespace ExperimentsConsoleApp
                 }
                 dictionary[word] = 1;
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
-
-            Console.WriteLine("\n============\n");
+            insertWatch.Stop();
 
             var mostFrequentWords = new List<string>();
             var frequency = 27;
@@ -120,17 +118,20 @@ namespace ExperimentsConsoleApp
                 }
             }
 
-            Console.WriteLine("Dictionary Deleting Most Frequent Words");
-
-            watch.Restart();
+            deleteWatch.Restart();
             // Удаление слов которые встречаются чаще 27 раз
             foreach (var word in mostFrequentWords)
             {
                 dictionary.Remove(word);
             }
-            watch.Stop();
-            Console.WriteLine($"Time: {watch.Elapsed}");
+            deleteWatch.Stop();
+            totalWatch.Stop();
 
+            Console.WriteLine("\n============\n");
+            Console.WriteLine("Dictionary");
+            Console.WriteLine($"Insert time: {insertWatch.ElapsedTicks}");
+            Console.WriteLine($"Delete time: {deleteWatch.ElapsedTicks}");
+            Console.WriteLine($"Total  time: {totalWatch.ElapsedTicks}");
             Console.WriteLine("\n============\n");
 
             #endregion

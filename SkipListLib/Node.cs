@@ -7,8 +7,7 @@
         public Node<TKey, TValue> Right;
         public Node<TKey, TValue> Up;
         public Node<TKey, TValue> Down;
-        public Node()
-        { }
+        public Node() : this(default, default) { }
         public Node(TKey key, TValue value)
         {
             Key = key;
