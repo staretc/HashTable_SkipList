@@ -10,19 +10,19 @@ namespace SkipListUnitTest
     public class SkipListUnitTest
     {
         [TestMethod]
-        public void CountIncreaseAfterAdding()
+        public void Count_IncreasesAfterAdding()
         {
             int n = 10;
             var lib = new SkipList<int, int>();
 
-            for(int i=0; i<n; i++)
+            for (int i = 0; i < n; i++)
             {
                 lib.Add(i, i);
             }
             Assert.AreEqual(n, lib.Count);
         }
         [TestMethod]
-        public void ItemsExistsAfterAdding()
+        public void Add_ItemsExistAfterAdding()
         {
             var lib = new SkipList<int, int>();
             var nums = new List<int>(new[] { 44, 22, 1 , 56, 3, 90, 31, 15, 26 });
@@ -41,7 +41,7 @@ namespace SkipListUnitTest
             Assert.AreEqual(n, lib.Count);
         }
         [TestMethod]
-        public void RandomItemsExistsAfterAdding()
+        public void Add_RandomItemsExistAfterAdding()
         {
             var lib = new SkipList<int, int>();
             var nums = new HashSet<int>();

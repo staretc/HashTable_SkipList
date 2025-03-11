@@ -13,6 +13,10 @@ namespace ExperimentsConsoleApp
     {
         static void Main(string[] args)
         {
+            Experiment_HashTable();
+        }
+        static void Experiment_HashTable()
+        {
             var inputText = File.ReadAllText("WarAndWorld.txt");
             string pattern = @"\b\w+\b";
             var matches = Regex.Matches(inputText, pattern);

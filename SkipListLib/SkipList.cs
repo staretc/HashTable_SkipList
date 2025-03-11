@@ -4,58 +4,102 @@ using System.Collections.Generic;
 
 namespace SkipListLib
 {
-    public class SkipList<TKey, TValue> :
-        IEnumerable<KeyValuePair<TKey, TValue>>
-        where TKey : IComparable<TKey>
+    public class SkipList<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : IComparable<TKey>
     {
-        Node<TKey, TValue>[] _head;
-        readonly double _probability;
-        readonly int _maxLevel;
-        int _curLevel;
-        Random _rd;
+        #region Fields
+
+        /// <summary>
+        /// Массив узлов, с которых начинается каждый уровень
+        /// </summary>
+        private Node<TKey, TValue>[] _head;
+        /// <summary>
+        /// Вероятность для перевода элемента на следующий уровень
+        /// </summary>
+        private readonly double _probability;
+        /// <summary>
+        /// Максимально возможный уровень
+        /// </summary>
+        private readonly int _maxLevel;
+        /// <summary>
+        /// Самый нижний занятый уровень
+        /// </summary>
+        private int _currentLevel;
+        /// <summary>
+        /// Для генерации случайных вероятностей
+        /// </summary>
+        private Random _random;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Количество узлов в Списке
+        /// </summary>
         public int Count { get; private set; }
-        public SkipList(int maxLevel = 10, double p = 0.5)
+
+        #endregion
+
+        #region Constructors
+
+        public SkipList(int maxLevel = 10, double probability = 0.5)
         {
             _maxLevel = maxLevel;
-            _probability = p;
+            _probability = probability;
             _head = new Node<TKey, TValue>[_maxLevel];
-            for (int i = 0; i < maxLevel; i++)
+            _head[0] = new Node<TKey, TValue>();
+            for (int i = 1; i < maxLevel; i++)
             {
                 _head[i] = new Node<TKey, TValue>();
-                if (i == 0) continue;
                 _head[i - 1].Up = _head[i];
                 _head[i].Down = _head[i - 1];
             }
-
-            _curLevel = 0;
-            _rd = new Random(DateTime.Now.Millisecond);
+            _currentLevel = 0;
+            _random = new Random(DateTime.Now.Millisecond);
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Добавление нового узла в Список
+        /// </summary>
+        /// <param name="key">Ключ узла</param>
+        /// <param name="value">Значение узла по ключу</param>
         public void Add(TKey key, TValue value)
         {
-            var prevNode = new Node<TKey, TValue>[_maxLevel];
-            var currentNode = _head[_curLevel];
-            for (int i = _curLevel; i >= 0; i--)
+            var prevNode = new Node<TKey, TValue>[_maxLevel]; // для записи узлов каждого уровня, на которых остановились
+            var currentNode = _head[_currentLevel];
+            // проходим по уровням
+            for (int i = _currentLevel; i >= 0; i--)
             {
-                while (currentNode.Right != null &&
-                    currentNode.Right.Key.CompareTo(key) < 0)
+                // двигаемся по уровню пока следующий элемент < текущего элемента
+                while (currentNode.Right != null && currentNode.Right.Key.CompareTo(key) < 0)
                 {
                     currentNode = currentNode.Right;
                 }
+                // записываем узал, на котором остановились
                 prevNode[i] = currentNode;
+                // если на следующем уровне нет узла, останавливаемся
                 if (currentNode.Down == null)
+                {
                     break;
+                }
+                // иначе идём на следующий уровень
                 currentNode = currentNode.Down;
             }
+            // определяем, на какой уровень опустим новый элемент
             int level = 0;
-            while (_rd.NextDouble() < _probability && level < _maxLevel - 1)
+            while (_random.NextDouble() < _probability && level < _maxLevel - 1)
             {
                 level++;
             }
-            while (_curLevel < level)
+            while (_currentLevel < level)
             {
-                _curLevel++;
-                prevNode[_curLevel] = _head[_curLevel];
+                // обновляем текущий самый нижний уровень 
+                _currentLevel++;
+                prevNode[_currentLevel] = _head[_currentLevel];
             }
             for (int i = 0; i <= level; i++)
             {
@@ -67,12 +111,19 @@ namespace SkipListLib
             }
             Count++;
         }
-
+        /// <summary>
+        /// Проверка наличия узла в Списке по ключу
+        /// </summary>
+        /// <param name="key">Ключ, по которому ищем узел</param>
+        /// <returns>True если ключ содержится в списке, иначе False</returns>
         public bool Contains(TKey key)
         {
             return true;
         }
-
+        /// <summary>
+        /// Удаление узла из Списка по ключу
+        /// </summary>
+        /// <param name="key">Ключ, по которому необходимо удалить узел</param>
         public void Remove(TKey key)
         {
 
