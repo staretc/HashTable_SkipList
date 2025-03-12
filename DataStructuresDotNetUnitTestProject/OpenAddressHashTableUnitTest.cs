@@ -68,6 +68,29 @@ namespace DataStructuresTestProject
             }
         }
         [TestMethod]
+        public void Count_DecreasesAfterRemoving()
+        {
+            int size = 10103;
+            var hashTable = new OpenAddressHashTable<int, int>(size);
+            var array = new int[size / 2];
+            var rnd = new Random();
+            for (int i = 0; i < size / 2; i++)
+            {
+                var item = rnd.Next();
+                if (!array.Contains(item))
+                {
+                    array[i] = item;
+                    hashTable.Add(item, item);
+                }
+            }
+            var expectedCount = array.Length;
+            for (int i = 0; i < size / 2; i++)
+            {
+                hashTable.Remove(array[i]);
+                Assert.AreEqual(--expectedCount, hashTable.Count);
+            }
+        }
+        [TestMethod]
         public void Add_NonExistentKey_PairAdded()
         {
             int size = 10103;

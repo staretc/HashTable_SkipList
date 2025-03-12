@@ -1,9 +1,11 @@
 ﻿using HashTablesLib;
+using SkipListLib;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 
@@ -13,8 +15,14 @@ namespace ExperimentsConsoleApp
     {
         static void Main(string[] args)
         {
-            Experiment_HashTable();
+            //Experiment_HashTable();
+            Experiment_SkipList();
         }
+        #region Experiment HashTable
+
+        /// <summary>
+        /// Запускаемый эксперимент для Хеш-таблицы
+        /// </summary>
         static void Experiment_HashTable()
         {
             var inputText = File.ReadAllText("WarAndWorld.txt");
@@ -136,5 +144,84 @@ namespace ExperimentsConsoleApp
 
             #endregion
         }
+
+        #endregion
+
+        #region Experiment SkipList
+
+        static void Experiment_SkipList()
+        {
+            var random = new Random();
+            var count = 10000;
+            var numbers = new HashSet<int>();
+            while (numbers.Count < count)
+            {
+                numbers.Add(random.Next(1, count * 5));
+            }
+            Work_SkipList(numbers.ToArray());
+            Work_SortedList(numbers.ToArray());
+        }
+        static void Work_SkipList(int[] numbers)
+        {
+            var skipList = new SkipList<int, int>();
+            var totalWatch = new Stopwatch();
+
+            #region Starting up
+            skipList.Add(1, 1);
+            skipList.ContainsKey(1);
+            skipList.Remove(1);
+            #endregion
+
+            totalWatch.Start();
+            foreach (var num in numbers)
+            {
+                skipList.Add(num, num);
+            }
+            var low = numbers.Length / 2;
+            var high = numbers.Length / 4 * 3;
+            for (int i = low; i < high; i++)
+            {
+                skipList.Remove(numbers[i]);
+            }
+            foreach (var num in numbers)
+            {
+                skipList.ContainsKey(num);
+            }
+            totalWatch.Stop();
+
+            Console.WriteLine("\n============\n");
+            Console.WriteLine("SkipList");
+            Console.WriteLine($"Total time: {totalWatch.ElapsedTicks}");
+            Console.WriteLine("\n============\n");
+        }
+        static void Work_SortedList(int[] numbers)
+        {
+            var sortedList = new SortedList<int, int>();
+            var totalWatch = new Stopwatch();
+
+            totalWatch.Start();
+            foreach (var num in numbers)
+            {
+                sortedList.Add(num, num);
+            }
+            var low = numbers.Length / 2;
+            var high = numbers.Length / 4 * 3;
+            for (int i = low; i < high; i++)
+            {
+                sortedList.Remove(numbers[i]);
+            }
+            foreach (var num in numbers)
+            {
+                sortedList.ContainsKey(num);
+            }
+            totalWatch.Stop();
+
+            Console.WriteLine("\n============\n");
+            Console.WriteLine("SortedList");
+            Console.WriteLine($"Total time: {totalWatch.ElapsedTicks}");
+            Console.WriteLine("\n============\n");
+        }
+
+        #endregion
     }
 }

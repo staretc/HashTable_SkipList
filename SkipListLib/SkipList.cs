@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SkipListLib
 {
@@ -80,14 +81,14 @@ namespace SkipListLib
                 level++;
             }
 
-            var prevNode = new Node<TKey, TValue>[level + 1]; // для записи узлов на которых остановились при поиске места вставки на каждом уровне
+            var prevNodes = new Node<TKey, TValue>[level + 1]; // для записи узлов на которых остановились при поиске места вставки на каждом уровне
             while (_currentLevel < level)
             {
                 // обновляем текущее количество уровней
                 _currentLevel++;
                 // заполняем ячейку массива головным элементом данного уровня (до этого она была пустая)
                 // на новых уровнях мы вставим элемент сразу после головного
-                prevNode[_currentLevel] = _heads[_currentLevel];
+                prevNodes[_currentLevel] = _heads[_currentLevel];
             }
             
             var currentNode = _heads[level];
@@ -104,7 +105,7 @@ namespace SkipListLib
                     throw new ArgumentException();
                 }
                 // записываем узал, на котором остановились
-                prevNode[i] = currentNode;
+                prevNodes[i] = currentNode;
                 // если на следующем уровне нет узла, останавливаемся
                 if (currentNode.Down == null)
                 {
@@ -117,36 +118,25 @@ namespace SkipListLib
             for (int i = 0; i <= level; i++)
             {
                 // объявляем новый узел и вставляем его между бОльшим и меньшим
-                var node = new Node<TKey, TValue>(key, value) { Right = prevNode[i].Right };
-                prevNode[i].Right = node;
+                var node = new Node<TKey, TValue>(key, value) { Right = prevNodes[i].Right };
+                prevNodes[i].Right = node;
                 if (i == 0) continue;
                 // делаем связку между нижним элементом нового узла
                 // и правым элементом узла прошлого уровня на котором остановились при поиске места для элемента
                 // это будет один и тот же узел на разных уровнях
-                node.Down = prevNode[i - 1].Right;
-                prevNode[i - 1].Right.Up = node;
+                node.Down = prevNodes[i - 1].Right;
+                prevNodes[i - 1].Right.Up = node;
             }
             Count++;
-        }
-        /// <summary>
-        /// Добавление первого элемента в Список
-        /// </summary>
-        /// <param name="key">Ключ узла</param>
-        /// <param name="value">Значение узла по ключу</param>
-        private void AddFirstItem(TKey key, TValue value)
-        {
-            foreach (var head in _heads)
-            {
-                head.Right = new Node<TKey, TValue>(key, value);
-            }
         }
         /// <summary>
         /// Проверка наличия узла в Списке по ключу
         /// </summary>
         /// <param name="key">Ключ, по которому ищем узел</param>
         /// <returns>True если ключ содержится в списке, иначе False</returns>
-        public bool Contains(TKey key)
+        public bool ContainsKey(TKey key)
         {
+            if (Count == 0) return false;
             return Find(key) != null;
         }
         /// <summary>
@@ -155,45 +145,51 @@ namespace SkipListLib
         /// <param name="key">Ключ, по которому необходимо удалить узел</param>
         public void Remove(TKey key)
         {
-            var deletingNode = Find(key);
-            // удаляем со всех уровней где есть этот элемент
-        }
+            if (Count == 0)
+            {
+                throw new ArgumentException();
+            }
 
+            var prevNodes = new Node<TKey, TValue>[_currentLevel + 1];
+            var level = _currentLevel;
 
-        /// <summary>
-        /// Поиск узла по ключу
-        /// </summary>
-        /// <param name="key">Ключ, по которому ищем элемент</param>
-        /// <returns>Узел с искомым ключом, если существует, иначе null</returns>
-        private Node<TKey, TValue> Find(TKey key)
-        {
+            // пропускаем заголовки
+            // идём пока следующий после заголовка узел пустой или ключ узла < данного ключа
             var currentNode = _heads[_currentLevel];
             int compareResult;
             while (currentNode != null)
             {
-                if (currentNode.Key.Equals(default))
+                if (currentNode.Key.Equals(default(TKey)) && currentNode.Right != null)
                 {
                     compareResult = currentNode.Right.Key.CompareTo(key);
-                    if (compareResult == 0)
+                    if (compareResult <= 0)
                     {
-                        return currentNode.Right;
+                        break;
                     }
-                    if (compareResult < 0)
-                    {
-                        currentNode = currentNode.Right;
-                        continue;
-                    }
-                    currentNode = currentNode.Down;
-                    continue;
                 }
+                currentNode = currentNode.Down;
+                level--;
+            }
+            if (currentNode == null)
+            {
+                throw new ArgumentException();
+            }
+
+            // собираем узлы, которые предшествуют удаляемому узлу
+            while (currentNode != null)
+            {
                 if (currentNode.Right != null)
                 {
                     compareResult = currentNode.Right.Key.CompareTo(key);
+                    // если нашли узел с таким же ключом, записываем предшествующий ему узел
                     if (compareResult == 0)
                     {
-                        return currentNode.Right;
+                        prevNodes[level] = currentNode;
+                        currentNode = currentNode.Down;
+                        level--;
+                        continue;
                     }
-                    if (compareResult < 0)
+                    if (compareResult < 0) // иначе идём вправо по текущему уровню и пропускаем элементы с ключами < keyы
                     {
                         while (currentNode.Right != null && currentNode.Right.Key.CompareTo(key) < 0)
                         {
@@ -203,8 +199,89 @@ namespace SkipListLib
                     }
                 }
                 currentNode = currentNode.Down;
+                level--;
+            }
+
+            // если ни одна из ячеек не заполнена (достаточно проверить самую первую, отвечающую за нижний уровень)
+            // значит элемент не нашли
+            if (prevNodes[0] == null)
+            {
+                throw new ArgumentException();
+            }
+
+            // перезаписываем связи узлов, исключая из Списка узел с данным ключом
+            for (int i = 0; i < prevNodes.Length && prevNodes[i] != null; i++)
+            {
+                if (prevNodes[i].Right.Right != null)
+                {
+                    prevNodes[i].Right = prevNodes[i].Right.Right;
+                    continue;
+                }
+                prevNodes[i].Right = null;
+            }
+            Count--;
+        }
+        /// <summary>
+        /// Поиск узла по ключу
+        /// </summary>
+        /// <param name="key">Ключ, по которому ищем элемент</param>
+        /// <returns>Узел с искомым ключом, если существует, иначе null</returns>
+        private Node<TKey, TValue> Find(TKey key)
+        {
+            // пропускаем заголовки
+            var currentNode = SkipDefaultNodes(key);
+            if (currentNode == null)
+            {
+                return null;
+            }
+            // ищем узел с нужным ключом
+            int compareResult;
+            while (currentNode != null)
+            {
+                if (currentNode.Right != null)
+                {
+                    // сравниваем ключ правого узла с данным ключом
+                    compareResult = currentNode.Right.Key.CompareTo(key);
+                    if (compareResult == 0) // если нашли, возвращаем
+                    {
+                        return currentNode.Right;
+                    }
+                    if (compareResult < 0) // иначе идём вправо по текущему уровню и пропускаем элементы с ключами < key
+                    {
+                        while (currentNode.Right != null && currentNode.Right.Key.CompareTo(key) < 0)
+                        {
+                            currentNode = currentNode.Right;
+                        }
+                        continue;
+                    }
+                }
+                // если на текущем уровне не нашли, идём ниже
+                currentNode = currentNode.Down;
             }
             return null;
+        }
+        /// <summary>
+        /// Пропускаем узлы-заголовки при поиске и удалении узлов
+        /// </summary>
+        /// <param name="key">Ключ, который мы ищем в Списке</param>
+        /// <returns>Узел, полученный после пропуска заголовных узлов, null в случае если не нашли ключа < key</returns>
+        private Node<TKey, TValue> SkipDefaultNodes(TKey key)
+        {
+            var node = _heads[_currentLevel];
+            int compareResult;
+            while (node != null)
+            {
+                if (node.Key.Equals(default(TKey)) && node.Right != null)
+                {
+                    compareResult = node.Right.Key.CompareTo(key);
+                    if (compareResult <= 0)
+                    {
+                        return node;
+                    }
+                }
+                node = node.Down;
+            }
+            return node;
         }
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {

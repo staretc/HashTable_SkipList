@@ -160,6 +160,7 @@ namespace HashTablesLib
                 return false;
             }
             item.DeletePair();
+            Count--;
             return true;
         }
 

@@ -54,6 +54,10 @@
       <Project>{31152139-1697-4c42-a626-f41536890965}</Project>
       <Name>HashTablesLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SkipListLib\SkipListLib.csproj">
+      <Project>{6DFC7357-82C7-42D8-8716-8E8E2B743D11}</Project>
+      <Name>SkipListLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
