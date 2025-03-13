@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SkipListLib
@@ -72,40 +73,23 @@ namespace SkipListLib
         /// <param name="value">Значение узла по ключу</param>
         public void Add(TKey key, TValue value)
         {
-            // определяем, на какой уровень опустим новый элемент
-            // это может быть как существующий уровень, так и новый (если можно добавить новые уровни)
-            // всё зависит от рандома и вероятности перехода на новый уровень
-            int level = 0;
-            while (_random.NextDouble() < _probability && level < _maxLevel - 1)
-            {
-                level++;
-            }
-
-            var prevNodes = new Node<TKey, TValue>[level + 1]; // для записи узлов на которых остановились при поиске места вставки на каждом уровне
-            while (_currentLevel < level)
-            {
-                // обновляем текущее количество уровней
-                _currentLevel++;
-                // заполняем ячейку массива головным элементом данного уровня (до этого она была пустая)
-                // на новых уровнях мы вставим элемент сразу после головного
-                prevNodes[_currentLevel] = _heads[_currentLevel];
-            }
-            
-            var currentNode = _heads[level];
+            var prevNode = new Node<TKey, TValue>[_maxLevel]; // для записи узлов на которых остановились при поиске места вставки на каждом уровне
+            var currentNode = _heads[_currentLevel];
             // проходим по уровням и определяем на какое место необходимо вставить узел на каждом уровне
-            for (int i = level; i >= 0; i--)
+            for (int i = _currentLevel; i >= 0; i--)
             {
                 // двигаемся по уровню пока следующий ключ < вставляемого ключа
                 while (currentNode.Right != null && currentNode.Right.Key.CompareTo(key) < 0)
                 {
                     currentNode = currentNode.Right;
                 }
+                // если нашли узел с таким же ключом, бросаем исключение
                 if (currentNode.Right != null && currentNode.Right.Key.Equals(key))
                 {
                     throw new ArgumentException();
                 }
                 // записываем узал, на котором остановились
-                prevNodes[i] = currentNode;
+                prevNode[i] = currentNode;
                 // если на следующем уровне нет узла, останавливаемся
                 if (currentNode.Down == null)
                 {
@@ -114,18 +98,33 @@ namespace SkipListLib
                 // иначе идём на следующий уровень
                 currentNode = currentNode.Down;
             }
-            
+            // определяем, на какой уровень опустим новый элемент
+            // это может быть как существующий уровень, так и новый (если можно добавить новые уровни)
+            // всё зависит от рандома и вероятности перехода на новый уровень
+            int level = 0;
+            while (_random.NextDouble() < _probability && level < _maxLevel - 1)
+            {
+                level++;
+            }
+            while (_currentLevel < level)
+            {
+                // обновляем текущее количество уровней
+                _currentLevel++;
+                // заполняем ячейку массива головным элементом данного уровня (до этого она была пустая)
+                // на новых уровнях мы вставим элемент сразу после головного
+                prevNode[_currentLevel] = _heads[_currentLevel];
+            }
             for (int i = 0; i <= level; i++)
             {
                 // объявляем новый узел и вставляем его между бОльшим и меньшим
-                var node = new Node<TKey, TValue>(key, value) { Right = prevNodes[i].Right };
-                prevNodes[i].Right = node;
+                var node = new Node<TKey, TValue>(key, value) { Right = prevNode[i].Right };
+                prevNode[i].Right = node;
                 if (i == 0) continue;
                 // делаем связку между нижним элементом нового узла
                 // и правым элементом узла прошлого уровня на котором остановились при поиске места для элемента
                 // это будет один и тот же узел на разных уровнях
-                node.Down = prevNodes[i - 1].Right;
-                prevNodes[i - 1].Right.Up = node;
+                node.Down = prevNode[i - 1].Right;
+                prevNode[i - 1].Right.Up = node;
             }
             Count++;
         }
