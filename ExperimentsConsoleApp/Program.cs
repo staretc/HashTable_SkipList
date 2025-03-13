@@ -16,7 +16,7 @@ namespace ExperimentsConsoleApp
         static void Main(string[] args)
         {
             //Experiment_HashTable();
-            Experiment_SkipList();
+            //Experiment_SkipList();
         }
         #region Experiment HashTable
 
