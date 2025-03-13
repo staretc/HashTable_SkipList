@@ -9,13 +9,13 @@
 + Файл `GetPrimeNumber.cs` - описание вспомогательного класса GetPrimeNumber и логика его работы
 + Файл `KeyValuePairClass.cs` - описание вспомогательного класса Lexem и логика его работы
 ### Директория `SkipListLib`
-+ Файл `SkipList.cs` - описание класса Скип-Лист и логика его работы _(не завершено)_
-+ Файл `Node.cs` - описание вспомогательного класса Node и логика его работы _(не завершено)_
++ Файл `SkipList.cs` - описание класса Скип-Лист и логика его работы
++ Файл `Node.cs` - описание вспомогательного класса Node и логика его работы
 ### Директория `DataStructuresDotNetUnitTestProject`
 + Файл `OpenAddressHashTableUnitTest.cs` - описание юнит-тестов для класса OpenAddressHashTable
 + Файл `ChainHashTableUnitTest.cs` - описание юнит-тестов для класса ChainHashTable _(не завершено)_
 + Файл `CuckooHashTableUnitTest.cs` - описание юнит-тестов для класса CuckooHashTable _(не завершено)_
-+ Файл `SkipListUnitTest.cs` - описание юнит-тестов для класса SkipList _(не завершено)_
++ Файл `SkipListUnitTest.cs` - описание юнит-тестов для класса SkipList
 ### Директория `ExperimentsConsoleApp`
 + Файл `Program.cs` - экспериментальное сравнение времени работы написанных классов и реализаций Microsoft
 
