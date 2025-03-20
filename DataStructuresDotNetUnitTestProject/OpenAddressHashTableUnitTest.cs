@@ -179,6 +179,26 @@ namespace DataStructuresTestProject
             }
         }
         [TestMethod]
+        public void Contains_AfterAddingAndRemovingSpecificitems_ReturnsTrue()
+        {
+            var hashTable = new OpenAddressHashTable<int, int>();
+            var items = new int[] { 11, 22, 33, 44, 55, 24 };
+            var deletingItems = new int[] { 11, 22, 44 };
+            var expectedItems = new int[] { 33, 55, 24 };
+            foreach (var item in items)
+            {
+                hashTable.Add(item, item);
+            }
+            foreach (var item in deletingItems)
+            {
+                hashTable.Remove(item);
+            }
+            foreach (var item in expectedItems)
+            {
+                Assert.IsTrue(hashTable.ContainsKey(item));
+            }
+        }
+        [TestMethod]
         public void Indexer_GetExistingKey_ValueTaken()
         {
             int size = 10103;

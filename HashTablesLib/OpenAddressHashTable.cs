@@ -117,6 +117,7 @@ namespace HashTablesLib
             _table = new Pair<TKey, TValue>[_capacity];
             _hashMaker1 = new HashMaker<TKey>(_capacity);
             _hashMaker2 = new HashMaker<TKey>(_capacity - 1);
+            Count = 0;
             foreach (var pair in oldTable)
             {
                 if (pair != null && !pair.IsDeleted())
