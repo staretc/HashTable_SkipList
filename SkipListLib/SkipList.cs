@@ -218,6 +218,13 @@ namespace SkipListLib
                 }
                 prevNodes[i].Right = null;
             }
+            // проходим по заголовкам начиная с _currentLevel и проверяем, находятся ли справа какие то узлы
+            // если не находятся, значит мы удалили единственный узел с этого уровня
+            // в таком случае уменьшаем _currentLevel
+            while (_currentLevel > 0 && _heads[_currentLevel].Right == null)
+            {
+                _currentLevel--;
+            }
             Count--;
         }
         /// <summary>

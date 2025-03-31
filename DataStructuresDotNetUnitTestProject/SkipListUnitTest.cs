@@ -89,7 +89,7 @@ namespace SkipListUnitTest
         {
             var skipList = new SkipList<int, int>();
             var nums = new List<int>(new[] { 44, 22, 1, 56, 3, 90, 31, 15, 26 });
-            for (int i = 0; i<nums.Count; i++)
+            for (int i = 0; i < nums.Count; i++)
             {
                 skipList.Add(nums[i], i);
             }
@@ -124,6 +124,35 @@ namespace SkipListUnitTest
                 }
             }
         }
-
+        [TestMethod]
+        public void Remove_EverySecondKey_ShouldRemoveCorrectly()
+        {
+            var skipList = new SkipList<int, int>();
+            var nums = new HashSet<int>();
+            var rd = new Random();
+            int n = 100;
+            while (nums.Count < n)
+            {
+                nums.Add(rd.Next(1, n * 3));
+            }
+            foreach (var item in nums)
+            {
+                skipList.Add(item, 1);
+            }
+            var sortedNums = nums.ToList();
+            sortedNums.Sort();
+            for (int i = 1; i < n; i+=2)
+            {
+                skipList.Remove(sortedNums[i]);
+            }
+            sortedNums = sortedNums.Where((x, index) => index % 2 == 0).ToList();
+            var remainingNums = skipList.ToArray().Select(x => x.Key).ToList();
+            for (int i = 0; i < n / 2 - 1; i++)
+            {
+                Assert.AreEqual(sortedNums[i], remainingNums[i]);
+                Assert.IsTrue(remainingNums[i] < remainingNums[i + 1]);
+            }
+            Assert.AreEqual(sortedNums[n / 2 - 1], remainingNums[n / 2 - 1]);
+        }
     }
 }
